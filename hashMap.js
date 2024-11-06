@@ -78,9 +78,25 @@ const HashMap = function () {
   // otherwise false
   function remove(key) {
     const hashValue = hash(key);
-    const node = buckets[vashValue];
+    let node = buckets[hashValue];
     if (isNull(node)) return false;
-    return true;
+    if (!isNull(node) && isNull(node.next) && node.key === key) {
+      buckets[hashValue] = node.next;
+      changeSize("-");
+      return true;
+    } else {
+      return helper(node, node);
+    }
+
+    function helper(head, prev) {
+      if (isNull(head)) return false;
+      if (head.key === key) {
+        prev.next = head.next;
+        changeSize("-");
+        return true;
+      }
+      return helper(head.next, head);
+    }
   }
 
   // Returns the number of stored keys in the hash map
