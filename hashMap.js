@@ -23,8 +23,28 @@ const HashMap = function () {
     // updating preexisting key's value
     if (node !== null && node.key === key) {
       node.value = value;
+      changeSize("+");
       return;
     }
+
+    // Collision Case
+    if (node !== null && node.key !== key) {
+      if (node.next == null) {
+        node.next = new Node(key, value, null);
+        changeSize("+");
+        return;
+      }
+
+      // Get the end of the list
+      while (node.next !== null) {
+        node = node.next;
+      }
+
+      node.next = new Node(key, value, null);
+      changeSize("+");
+      return;
+    }
+
     // new enterance no previous value or collision
     if (node === null) {
       buckets[hashValue] = new Node(key, value, null);
@@ -56,7 +76,24 @@ const HashMap = function () {
     sizeCount = 0;
   }
 
-  function keys() {}
+  // Returns the keys of the hash map
+  function keys() {
+    function getListKeys(head) {
+      function helper(acc, curr) {
+        if (curr === null) return acc;
+        return helper([...acc, curr.key], curr.next);
+      }
+      return helper([], head);
+    }
+
+    function reducer(prev, curr) {
+      if (curr === null) return [...prev];
+      if (curr.next === null) return [...prev, curr.key];
+      else return [...prev, ...getListKeys(curr)];
+    }
+
+    return buckets.reduce(reducer, []);
+  }
   function values() {}
   function entries() {}
 
