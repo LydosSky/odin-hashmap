@@ -1,7 +1,7 @@
 import LinkedList from "./linkedList.js";
 
 const HashMap = function () {
-  const buckets = createBuckets(16);
+  let buckets = createBuckets(16);
   let sizeCount = 0;
 
   function hash(key) {
@@ -21,22 +21,22 @@ const HashMap = function () {
     const hashValue = hash(key);
     const node = buckets[hashValue];
     // updating preexisting key's value
-    if (node !== null && node.key === key) {
+    if (!isNull(node) && node.key === key) {
       node.value = value;
       changeSize("+");
       return;
     }
 
     // Collision Case
-    if (node !== null && node.key !== key) {
-      if (node.next == null) {
+    if (!isNull(node) && node.key !== key) {
+      if (!isNull(node.next)) {
         node.next = new Node(key, value, null);
         changeSize("+");
         return;
       }
 
       // Get the end of the list
-      while (node.next !== null) {
+      while (!isNull(node.next)) {
         node = node.next;
       }
 
@@ -46,7 +46,7 @@ const HashMap = function () {
     }
 
     // new enterance no previous value or collision
-    if (node === null) {
+    if (isNull(node)) {
       buckets[hashValue] = new Node(key, value, null);
       changeSize("+");
       return;
@@ -55,16 +55,34 @@ const HashMap = function () {
 
   // Takes a key and return the value assigned to this key
   function get(key) {
-    return buckets[hash(key)];
+    const hashValue = hash(key);
+    const node = buckets[hashValue];
+    if (isNull(node)) return null;
+    function helper(head) {
+      if (isNull(head)) return null;
+      if (head.key === key) return head.value;
+      return helper(head.next);
+    }
+
+    return helper(node);
   }
 
   // Takes a key and returns true or false based on
   // whether or not the key is in the hash map
   function has(key) {
-    return buckets[hash(key)] !== undefined;
+    return !isNull(get(key));
   }
 
-  function remove(key) {}
+  // If the given key is in the hash map, it should
+  // remove the entry with that key and return true
+  // otherwise false
+  function remove(key) {
+    const hashValue = hash(key);
+    const node = buckets[vashValue];
+    if (isNull(node)) return false;
+    return true;
+  }
+
   // Returns the number of stored keys in the hash map
   function length() {
     return sizeCount;
@@ -111,7 +129,27 @@ const HashMap = function () {
 
     return buckets.reduce(reducer, []);
   }
-  function entries() {}
+
+  // Returns an array that contains each [key, value] pair.
+  // [[firstKey, firstValue], [secondKey, secondValue]]
+  function entries() {
+    function zipList(head) {
+      function helper(acc, curr) {
+        if (curr === null) return acc;
+        return helper([...acc, [curr.key, curr.value]], curr.next);
+      }
+
+      return helper([], head);
+    }
+
+    function reducer(prev, curr) {
+      if (curr === null) return [...prev];
+      if (curr.next === null) return [...prev, [curr.key, curr.value]];
+      else return [...prev, ...zipList(curr)];
+    }
+
+    return buckets.reduce(reducer, []);
+  }
 
   // Takes the size and returns a new
   // buckets array of the size filled with null
@@ -136,6 +174,11 @@ const HashMap = function () {
       default:
         return;
     }
+  }
+
+  // Determine given node is null or not
+  function isNull(node) {
+    return node === null;
   }
 
   return { set, get, has, remove, length, clear, keys, values, entries };
