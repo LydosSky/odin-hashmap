@@ -78,23 +78,39 @@ const HashMap = function () {
 
   // Returns the keys of the hash map
   function keys() {
-    function getListKeys(head) {
-      function helper(acc, curr) {
-        if (curr === null) return acc;
-        return helper([...acc, curr.key], curr.next);
-      }
-      return helper([], head);
-    }
-
     function reducer(prev, curr) {
       if (curr === null) return [...prev];
       if (curr.next === null) return [...prev, curr.key];
-      else return [...prev, ...getListKeys(curr)];
+      else return [...prev, ...listItem(curr, "key")];
     }
 
     return buckets.reduce(reducer, []);
   }
-  function values() {}
+
+  // Given head of a list returns the item of
+  // object of the list
+  // example: listItem(head, "key")
+  //          returns all the keys
+  function listItem(head, item) {
+    function helper(acc, curr) {
+      if (curr === null) return acc;
+      return helper([...acc, curr[item]], curr.next);
+    }
+    return helper([], head);
+  }
+
+  // Flattens the buckets
+
+  // returns an array containing all the values.
+  function values() {
+    function reducer(prev, curr) {
+      if (curr === null) return [...prev];
+      if (curr.next === null) return [...prev, curr.value];
+      else return [...prev, ...listItem(curr, "value")];
+    }
+
+    return buckets.reduce(reducer, []);
+  }
   function entries() {}
 
   // Takes the size and returns a new
